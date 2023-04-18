@@ -6,6 +6,7 @@ using DevExpress.ExpressApp.Security.ClientServer;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using BusinessObjectsLibrary.BusinessObjects;
+using ConsoleApplication;
 using DatabaseUpdater;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.DC.Xpo;
@@ -18,13 +19,19 @@ IXpoDataStoreProvider dataStoreProvider = XPObjectSpaceProvider.GetDataStoreProv
 CreateDemoData(typesInfo, dataStoreProvider);
 
 // ## Step 1. Initialization. Create a Secured Data Store and Set Authentication Options
-AuthenticationStandard authentication = new AuthenticationStandard();
+AuthenticationBase authentication = new CustomAuthentication();
 SecurityStrategyComplex security = new SecurityStrategyComplex(typeof(PermissionPolicyUser), typeof(PermissionPolicyRole), authentication, typesInfo);
 security.RegisterXPOAdapterProviders();
 SecuredObjectSpaceProvider objectSpaceProvider = new SecuredObjectSpaceProvider(security, dataStoreProvider, typesInfo, null);
 
 // ## Step 2. Authentication. Log in as a 'User' with an Empty Password
-authentication.SetLogonParameters(new AuthenticationStandardLogonParameters(userName: "User", password: string.Empty));
+authentication.SetLogonParameters(new CustomLogonParameters
+{
+	UserName = "User",
+	Password = string.Empty,
+	Tenant = "CustomTenant"
+});
+
 IObjectSpace loginObjectSpace = objectSpaceProvider.CreateObjectSpace();
 security.Logon(loginObjectSpace);
 
